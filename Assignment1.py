@@ -17,6 +17,30 @@ def gen_docs():
     for topic in range(0, topic_size):
         for i in range(0, num_docs):
             doc_array[topic * num_docs + i] = np.random.multinomial(doc_size, mu_array[topic])
+def gen_docs_mixed():
+    B_array = [0] * topic_size
+    B_array[0] = [.3, .3, .1, .1, .2]
+    B_array[1] = [.4, .1, .5, 0, 0]
+    B_array[2] = [.1, .2, 0, 0, .7]
+    B_array[3] = [.1, .1, .5, .3, 0]
+    B_array[4] = [0, .3, 0, .5, .2]
+
+    #for each class
+    for i in range(0, topic_size):
+        #create 10 docs
+        for j in range(0, num_docs):
+            #How many words are from each mu
+            words_from_mu = np.random.multinomial(doc_size, B_array[i])
+            doc = [0] * vocab_size
+            #for each mu, sample the corrresponding number of words
+            #add the counts to the doc
+            for k in range(0, 5):
+                 values = np.random.multinomial(words_from_mu[k], mu_array[k])
+                 for word in range(0, vocab_size):
+                     doc[word] += values[word]
+            doc_array[i * num_docs + j] = doc
+                 
+            
 
 def create_histogram():
     histogram_counts = np.zeros((topic_size, vocab_size), dtype=float)
@@ -83,15 +107,22 @@ def naiveBayes(doc_array):
     return correct_predict_count/25
  
 def main():
+    #part 4a
     gen_topics()
-    gen_docs()
-    create_histogram()
 
+    #part 4b
+    gen_docs()
+
+    #part 4c
+    create_histogram()
     mu_ML = [0] * topic_size
     for i in range(0, topic_size):
         mu_ML[i] = calc_mu_ML(doc_array[i * num_docs :(i + 1) * num_docs])
+
+    #part 4d
     accuracy = naiveBayes(doc_array)
 
+    #part 4e
     accuracy_array = [0] * 100  
     for i in range(0, 100):
         gen_topics()
@@ -101,5 +132,20 @@ def main():
     sd = np.std(accuracy_array)
     print(mean)
     print(sd)
+    #part 5
+    gen_topics()
+    gen_docs_mixed()
+    accuracy_mixed = naiveBayes(doc_array)
+
+    accuracy_array_mixed = [0] * 100
+    for i in range(0, 100):
+        gen_topics()
+        gen_docs_mixed()
+        accuracy_array_mixed[i] = naiveBayes(doc_array)
+    mean_mixed = np.mean(accuracy_array_mixed)
+    sd_mixed = np.std(accuracy_array_mixed)
+
+    print(mean_mixed)
+    print(sd_mixed)
 
 main()
