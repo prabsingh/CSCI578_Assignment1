@@ -75,21 +75,18 @@ def calc_mu_ML(data_array):
     return mu
 
 def log_likelyhood(mu, doc):
-    multinomial_coeffient = math.factorial(len(doc))
     sum_logs = 0.0
+    
     for i in range(0, len(doc)):
-        multinomial_coeffient /= math.factorial(doc[i])
         probability = mu[i]
         if (probability == 0):
             probability = .001
         sum_logs += doc[i] * probability
-
-    #add log of multinomial coeffient
-    sum_logs += np.log(multinomial_coeffient)
+        
     return sum_logs
     
 #P(T|D) = P(D|T)P(T)/P(D)
-#P(T|D) ~ P(D|T)
+#P(T|D) ~ P(D|T)P(T)
 #P(T|D) ~ P(D|T)
 def naiveBayes(doc_array):
     train = []
@@ -106,7 +103,9 @@ def naiveBayes(doc_array):
     #calculate mu_array of ML 
     mu_array = [0] * topic_size
     for i in range(0, topic_size):
-        topic_doc_array = doc_array[i * 5 : (i + 1) * 5]
+        topic_doc_array = []
+        for j in range(0, 5):
+            topic_doc_array.append(doc_array[train[i*5 + j]])
         mu_array[i] = calc_mu_ML(topic_doc_array)
 
     correct_predict_count = 0
